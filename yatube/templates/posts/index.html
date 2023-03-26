@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}
+  Последние обновления на сайте
+{% endblock %}
+{% block content %} 
+  <div class="d-flex justify-content-center">
+    <h1>Последние обновления на сайте</h1>
+  </div>
+  {% for post in page_obj %}
+    <div class="container py-5">
+      {% include 'includes/article.html' with article_adress=True %}
+      {% if not forloop.last %}
+        <hr>
+      {% endif %}
+    </div>
+  {% endfor %}
+  <div class="d-flex justify-content-center">
+    {% include 'posts/includes/paginator.html' %}
+  </div>
+{% endblock %}   
