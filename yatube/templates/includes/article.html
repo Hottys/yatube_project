@@ -14,7 +14,7 @@
       {% endif %}
     </li>
     <li>
-      Дата публикации: {{ post.pub_date|date:'d E Y' }}
+      Дата публикации: {{ post.pub_date|date:"d E Y" }}
     </li>
   </ul>
   <p>{{ post.text|linebreaks }}</p> 

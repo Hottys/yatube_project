@@ -7,8 +7,13 @@
       <div class="col-md-8 p-5">
         <div class="card">
           <div class="card-header">Войти на сайт</div>
+            <form method="post" 
+              {% if action_url %} 
+                action="{% url 'users:login' %} 
+              {% endif %}">
           <div class="card-body">
             {% include 'includes/check_form.html' %}
+            {% include 'includes/out_form.html' %}
             <div class="col-md-6 offset-md-4">
               <button type="submit" class="btn btn-primary">Войти</button>
               <a href="{% url 'password_reset' %}" class="btn btn-link">

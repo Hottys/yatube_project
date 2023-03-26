@@ -7,7 +7,7 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['text', 'group']
-        texts = {
+        help_texts = {
             'text': 'Текст нового поста',
-            'group': 'Группа, к которой будет относиться пост (необязательно)',
+            'group': 'Группа, к которой будет относиться пост',
         }

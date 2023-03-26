@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block title %}
-  Новый пост
+  {% if is_edit %}
+    Редактировать пост  
+  {% else %}
+    Новый пост
+  {% endif %}
 {% endblock %}
 {% block content %}
   <div class="row justify-content-center">
@@ -12,8 +16,14 @@
           {% else %}
             Новый пост
           {% endif %}
+          <form method="post" 
+            {% if action_url%} 
+              action="{% url 'posts:edit' %} 
+            {% endif %}
+            ">
           <div class="card-body">
             {% include 'includes/check_form.html' %}
+            {% include 'includes/out_form.html' %}
             <div class="d-flex justify-content-end">
               <button type="submit" class="btn btn-primary">
                 {% if is_edit %}
