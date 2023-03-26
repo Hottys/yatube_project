@@ -16,12 +16,11 @@
           {% else %}
             Новый пост
           {% endif %}
-          <form method="post" 
+          <div class="card-body">
+            <form method="post" 
             {% if action_url%} 
               action="{% url 'posts:edit' %} 
-            {% endif %}
-            ">
-          <div class="card-body">
+            {% endif %}">
             {% include 'includes/check_form.html' %}
             {% include 'includes/out_form.html' %}
             <div class="d-flex justify-content-end">

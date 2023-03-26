@@ -1,55 +1,42 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import PostForm
 from .models import Group, Post
+from .utils import get_padginator
 
 User = get_user_model()
 
 
-def get_padginator(queryset, request):
-    """Функция паджинатора"""
-    paginator = Paginator(queryset, settings.NUM_OF_POST)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return {
-        'paginator': paginator,
-        'page_number': page_number,
-        'page_obj': page_obj,
-    }
-
-
 def index(request):
     """Выводим шаблон главной страницы."""
-    post_list = Post.objects.select_related(
+    posts = Post.objects.select_related(
         'author',
-        'group')
+        'group',
+    )
     context = {}
-    context.update(get_padginator(post_list.all(), request))
+    context.update(get_padginator(posts.all(), request))
     return render(request, 'posts/index.html', context)
 
 
 def group_posts(request, slug):
     """Выводим шаблон с группами постов."""
     group = get_object_or_404(Group, slug=slug)
-    posts = group.posts.select_related(
-        'author',
-        'group')
     context = {
         'group': group,
-        'posts': posts
     }
-    context.update(get_padginator(group.posts.select_related(), request))
+    context.update(get_padginator(group.posts.select_related(
+        'author',
+        'group'
+    ), request))
     return render(request, 'posts/group_list.html', context)
 
 
 def profile(request, username):
     """Выводит шаблон профиля пользователя."""
     author = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=author)
+    posts = author.posts.select_related()
     context = {
         'author': author,
         'posts': posts
@@ -59,12 +46,13 @@ def profile(request, username):
 
 
 def post_detail(request, post_id):
-    """Выводим на страницу подробную информацию о посте"""
+    """Выводим на страницу подробную информацию о посте."""
     post = get_object_or_404(Post, id=post_id)
-    posts_count = Post.objects.filter(author=post.author).count()
+    author = post.author
+    posts_count = author.posts.select_related().count()
     context = {
         'post': post,
-        'posts_count': posts_count
+        'posts_count': posts_count,
     }
     return render(request, 'posts/post_detail.html', context)
 

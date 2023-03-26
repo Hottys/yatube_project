@@ -9,11 +9,11 @@
         <div class="card-header">
           Зарегистрироваться
         </div>
-        <form method="post" 
-          {% if action_url %} 
-            action="{% url 'users:signup' %} 
-          {% endif %}">
           <div class="card-body">
+            <form method="post" 
+              {% if action_url %} 
+                action="{% url 'users:signup' %} 
+              {% endif %}">
             {% include 'includes/check_form.html' %}
             {% include 'includes/out_form.html' %}
             <div class="col-md-6 offset-md-4">
