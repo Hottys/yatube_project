@@ -6,7 +6,12 @@ SECRET_KEY = '2f3zsah!-3_n1tm9822$pki*6z2lyd@qp7537ic04$+@$ye_l*'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    'testserver',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -74,9 +79,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-NUM_OF_POST = 10
+NUM_OF_POST: int = 10
 
-COEFF_SLICE = 500
+COEFF_SLICE: int = 15
+
+FIRST_CHAR_POST: int = 15
+
+TOTAL_POSTS: int = 13
+
+TEN_POST_PAGE: int = 10
+
+THREE_POST_PAGE: int = 3
 
 LANGUAGE_CODE = 'ru-RU'
 

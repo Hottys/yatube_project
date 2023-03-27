@@ -55,10 +55,8 @@ def profile(request, username):
 def post_detail(request, post_id):
     """Выводим на страницу подробную информацию о посте."""
     post = get_object_or_404(Post, id=post_id)
-    posts_count = post.author.posts
     context = {
         'post': post,
-        'posts_count': posts_count,
     }
     return render(request, 'posts/post_detail.html', context)
 
