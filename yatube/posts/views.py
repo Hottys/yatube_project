@@ -15,41 +15,47 @@ def index(request):
         'author',
         'group',
     )
-    context = {}
-    context.update(get_padginator(posts.all(), request))
+    page_obj = get_padginator(posts, request)
+    context = {
+        'page_obj': page_obj
+    }
     return render(request, 'posts/index.html', context)
 
 
 def group_posts(request, slug):
     """Выводим шаблон с группами постов."""
     group = get_object_or_404(Group, slug=slug)
+    posts = Post.objects.select_related(
+        'author',
+        'group',
+    )
+    page_obj = get_padginator(posts, request)
     context = {
         'group': group,
+        'page_obj': page_obj
     }
-    context.update(get_padginator(group.posts.select_related(
-        'author',
-        'group'
-    ), request))
     return render(request, 'posts/group_list.html', context)
 
 
 def profile(request, username):
     """Выводит шаблон профиля пользователя."""
     author = get_object_or_404(User, username=username)
-    posts = author.posts.select_related()
+    posts = author.posts.select_related(
+        'author',
+        'group'
+    )
+    page_obj = get_padginator(posts, request)
     context = {
         'author': author,
-        'posts': posts
+        'page_obj': page_obj
     }
-    context.update(get_padginator(author.posts.select_related(), request))
     return render(request, 'posts/profile.html', context)
 
 
 def post_detail(request, post_id):
     """Выводим на страницу подробную информацию о посте."""
     post = get_object_or_404(Post, id=post_id)
-    author = post.author
-    posts_count = author.posts.select_related().count()
+    posts_count = post.author.posts
     context = {
         'post': post,
         'posts_count': posts_count,
