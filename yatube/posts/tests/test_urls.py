@@ -79,10 +79,6 @@ class PostsURLTests(TestCase):
                 'posts:post_detail',
                 kwargs={'post_id': self.post.id}
             ): HTTPStatus.OK,
-            reverse(
-                'posts:post_detail',
-                kwargs={'post_id': self.post.id}
-            ): HTTPStatus.OK,
         }
         for url, response_code in namespace_url_names.items():
             with self.subTest(url=url):
@@ -102,12 +98,50 @@ class PostsURLTests(TestCase):
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
-                if url == reverse(
-                    'posts:edit',
-                    kwargs={'post_id': self.post.id},
-                ):
-                    response = self.no_author.get(url)
-                    self.assertEqual(response.status_code, HTTPStatus.FOUND)
-                else:
-                    response = self.no_author.get(url)
-                    self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_urls_create_list_redirect_guest_client(self):
+        """Шаблон create перенаправит анонимного
+        пользователя на страницу логина.
+        """
+        response = self.guest_client.get(
+            reverse('posts:post_create'),
+            follow=True
+        )
+        self.assertRedirects(
+            response,
+            '/auth/login/?next=/create/'
+        )
+
+    def test_urls_no_author_redirect_client(self):
+        """Шаблон edit перенаправит не автора поста
+        на страницу post_detail.
+        """
+        response = self.no_author.get(
+            reverse(
+                'posts:edit',
+                kwargs={'post_id': self.post.id}
+            ),
+            follow=True
+        )
+        self.assertRedirects(
+            response,
+            reverse(
+                'posts:post_detail',
+                kwargs={'post_id': self.post.id}
+            ))
+
+    def test_urls_edit_list_redirect_guest_client(self):
+        """Шаблон edit перенаправит анонимного
+        пользователя на страницу логина.
+        """
+        response = self.guest_client.get(
+            reverse(
+                'posts:edit',
+                kwargs={'post_id': self.post.id}
+            ),
+            follow=True
+        )
+        self.assertRedirects(
+            response,
+            (f'/auth/login/?next=/posts/{self.post.id}/edit/')
+        )
