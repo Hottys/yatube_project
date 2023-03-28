@@ -28,7 +28,6 @@ class PostFormTests(TestCase):
         )
 
     def setUp(self):
-        self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
@@ -38,6 +37,7 @@ class PostFormTests(TestCase):
         form_data = {
             'text': 'Тестовый текст формы',
             'group': self.group.id,
+            'author': self.user
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'),
@@ -46,14 +46,15 @@ class PostFormTests(TestCase):
         )
         self.assertRedirects(response, reverse(
             'posts:profile',
-            kwargs={'username': 'auth'}
+            kwargs={'username': self.user}
         ))
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertTrue(
             Post.objects.filter(
-                text='Тестовый текст формы',
-                group=self.group.id,
-            ).exists()
+                text=form_data['text'],
+                group=self.group,
+                author=self.user
+            )
         )
 
     def test_edit_post(self):
@@ -61,6 +62,8 @@ class PostFormTests(TestCase):
         previous_post = self.post
         form_data = {
             'text': 'Новый редактированный тестовый текст',
+            'group': self.group.id,
+            'author': self.user
         }
         response = self.authorized_client.post(
             reverse(
@@ -74,7 +77,9 @@ class PostFormTests(TestCase):
         self.assertNotEqual(previous_post.text, current_post.text)
         self.assertTrue(
             Post.objects.filter(
-                text='Новый редактированный тестовый текст',
-            ).exists()
+                text=form_data['text'],
+                group=self.group,
+                author=self.user
+            )
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
