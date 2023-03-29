@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-
 from posts.models import Group, Post
 
 User = get_user_model()
@@ -23,7 +22,7 @@ class PostModelTest(TestCase):
 
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
-        list_models = [
+        list_models = (
             (
                 PostModelTest.post.text[:settings.FIRST_CHAR_POST],
                 self.post.text
@@ -32,7 +31,7 @@ class PostModelTest(TestCase):
                 PostModelTest.group.title,
                 self.group.title
             )
-        ]
+        )
         for model, value in list_models:
             with self.subTest(model=model):
                 self.assertEqual(model, value)

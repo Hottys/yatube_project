@@ -1,9 +1,9 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
-
 from posts.models import Group, Post
 
 User = get_user_model()
@@ -31,6 +31,7 @@ class PostsURLTests(TestCase):
         )
 
     def setUp(self):
+        cache.clear()
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
@@ -56,6 +57,7 @@ class PostsURLTests(TestCase):
                 kwargs={'post_id': self.post.id}): 'posts/post_create.html',
             reverse(
                 'posts:post_create'): 'posts/post_create.html',
+            reverse('posts:follow_index'): 'posts/follow.html',
         }
         for reverse_name, template in templates_url_names.items():
             with self.subTest(reverse_name=reverse_name):
@@ -92,7 +94,8 @@ class PostsURLTests(TestCase):
                 'posts:edit',
                 kwargs={'post_id': self.post.id}
             ),
-            reverse('posts:post_create')
+            reverse('posts:post_create'),
+            reverse('posts:follow_index')
         }
         for url in namespace_url_names:
             with self.subTest(url=url):
@@ -100,17 +103,29 @@ class PostsURLTests(TestCase):
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_urls_create_list_redirect_guest_client(self):
-        """Шаблон create перенаправит анонимного
+        """Шаблон create, edit и follow перенаправит анонимного
         пользователя на страницу логина.
         """
-        response = self.guest_client.get(
+        response_list = {
             reverse('posts:post_create'),
-            follow=True
-        )
-        self.assertRedirects(
-            response,
-            '/auth/login/?next=/create/'
-        )
+            reverse(
+                'posts:edit',
+                kwargs={'post_id': self.post.id}
+            ),
+            reverse(
+                'posts:follow_index',
+            ),
+        }
+        for url in response_list:
+            with self.subTest(url=url):
+                response = self.guest_client.get(
+                    url,
+                    follow=True
+                )
+                self.assertRedirects(
+                    response,
+                    reverse('login') + '?next=' + url
+                )
 
     def test_urls_no_author_redirect_client(self):
         """Шаблон edit перенаправит не автора поста
@@ -130,18 +145,8 @@ class PostsURLTests(TestCase):
                 kwargs={'post_id': self.post.id}
             ))
 
-    def test_urls_edit_list_redirect_guest_client(self):
-        """Шаблон edit перенаправит анонимного
-        пользователя на страницу логина.
-        """
-        response = self.guest_client.get(
-            reverse(
-                'posts:edit',
-                kwargs={'post_id': self.post.id}
-            ),
-            follow=True
-        )
-        self.assertRedirects(
-            response,
-            (f'/auth/login/?next=/posts/{self.post.id}/edit/')
-        )
+    def test_error_page_template(self):
+        """Страница 404 выдает кастомный шаблон."""
+        response = self.authorized_client.get('/page404/')
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertTemplateUsed(response, 'core/404.html')

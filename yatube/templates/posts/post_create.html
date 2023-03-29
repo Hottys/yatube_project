@@ -18,6 +18,7 @@
           {% endif %}
           <div class="card-body">
             <form method="post" 
+              enctype="multipart/form-data"
             {% if action_url%} 
               action="{% url 'posts:edit' %} 
             {% endif %}">

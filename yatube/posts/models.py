@@ -41,7 +41,8 @@ class Post(models.Model):
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата публикации',
-        help_text='Укажите дату публикации'
+        help_text='Укажите дату публикации',
+        db_index=True
     )
     author = models.ForeignKey(
         User,
@@ -59,6 +60,11 @@ class Post(models.Model):
         verbose_name='Группа',
         help_text='Выберите группу к которой будет относиться пост'
     )
+    image = models.ImageField(
+        'Картинка',
+        upload_to='posts/',
+        blank=True
+    )
 
     class Meta:
         ordering = ['-pub_date']
@@ -67,3 +73,43 @@ class Post(models.Model):
 
     def __str__(self):
         return self.text[:settings.COEFF_SLICE]
+
+
+class Comment(models.Model):
+    """Модель комментариев."""
+
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        verbose_name='Комментарий',
+        related_name='comments',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+        related_name='comments',
+    )
+    text = models.TextField(
+        verbose_name='Текст комментария',
+        help_text='Введите текст комментария',
+    )
+    created = models.DateTimeField(
+        verbose_name='Дата публикации',
+        auto_now_add=True
+    )
+
+
+class Follow(models.Model):
+    """Модель подписки."""
+
+    user = models.ForeignKey(
+        User,
+        related_name='follower',
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        User,
+        related_name='following',
+        on_delete=models.CASCADE,
+    )
