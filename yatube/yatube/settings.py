@@ -94,6 +94,8 @@ THREE_POST_PAGE: int = 3
 
 CACHE_TIMEOUT: int = 20
 
+ZERO_POST: int = 0
+
 LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'Europe/Moscow'

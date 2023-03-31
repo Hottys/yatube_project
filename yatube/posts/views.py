@@ -50,9 +50,9 @@ def profile(request, username):
     )
     page_obj = get_padginator(posts, request)
     user = request.user
-    following = False
-    if user.is_authenticated and author.following.filter(user=user).exists():
-        following = True
+    following = user.is_authenticated and author.following.filter(
+        user=user
+    ).exists()
     context = {
         'author': author,
         'page_obj': page_obj,
@@ -65,11 +65,9 @@ def post_detail(request, post_id):
     """Выводим на страницу подробную информацию о посте."""
     post = get_object_or_404(Post, id=post_id)
     form = CommentForm(request.POST or None)
-    comments = post.comments.all()
     context = {
         'post': post,
         'form': form,
-        'comments': comments,
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -133,12 +131,12 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    posts = Post.objects.select_related(
+    post = Post.objects.select_related(
         'author'
     ).filter(
         author__following__user=request.user
     )
-    page_obj = get_padginator(posts, request)
+    page_obj = get_padginator(post, request)
     context = {
         'page_obj': page_obj
     }

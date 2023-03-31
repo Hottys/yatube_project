@@ -86,11 +86,17 @@ class PostFormTests(TestCase):
 
     def test_edit_post(self):
         """Валидная форма редактирования изменяет пост в базе данных."""
+        uploaded_new = SimpleUploadedFile(
+            name='big.gif',
+            content=self.small_gif,
+            content_type='image/gif'
+        )
         previous_post = self.post
         form_data = {
             'text': 'Новый редактированный тестовый текст',
             'group': self.group.id,
-            'author': self.user
+            'author': self.user,
+            'image': uploaded_new,
         }
         response = self.authorized_client.post(
             reverse(
@@ -106,10 +112,31 @@ class PostFormTests(TestCase):
             Post.objects.filter(
                 text=form_data['text'],
                 group=self.group,
-                author=self.user
+                author=self.user,
+                image='posts/big.gif'
             )
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_guest_client_cant_add_post(self):
+        """Публиковать посты может только авторизованный пользователь."""
+        post_count = Post.objects.count()
+        form_data = {
+            'text': 'Тестовый текст формы',
+            'group': self.group.id,
+            'author': self.user,
+            'image': self.uploaded,
+        }
+        response = self.guest_client.post(
+            reverse('posts:post_create'),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(Post.objects.count(), post_count)
+        self.assertRedirects(
+            response,
+            reverse('login') + '?next=' + '/create/'
+        )
 
     def test_guest_client_cant_add_comment(self):
         """Комментировать посты может только авторизованный пользователь."""
@@ -134,7 +161,7 @@ class PostFormTests(TestCase):
         )
 
     def test_guest_client_cant_add_comment(self):
-        """Комментарий появляется на странице поста."""
+        """Комментарий появляется после добавления."""
         comment_count = Comment.objects.count()
         comment_form = {
             'text': 'Текст комментария'

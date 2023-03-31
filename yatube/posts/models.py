@@ -63,7 +63,8 @@ class Post(models.Model):
     image = models.ImageField(
         'Картинка',
         upload_to='posts/',
-        blank=True
+        blank=True,
+        null=True
     )
 
     class Meta:
@@ -99,6 +100,14 @@ class Comment(models.Model):
         auto_now_add=True
     )
 
+    class Meta:
+        ordering = ['-created']
+        verbose_name_plural = 'Комментарии'
+        verbose_name = 'Комментарий'
+
+    def __str__(self):
+        return self.text[:settings.COEFF_SLICE]
+
 
 class Follow(models.Model):
     """Модель подписки."""
@@ -113,3 +122,17 @@ class Follow(models.Model):
         related_name='following',
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        ordering = ['-user']
+        verbose_name_plural = 'Подписки'
+        verbose_name = 'Подписка'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'author'),
+                name='unique_follows',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.user} подписался на {self.author}.'

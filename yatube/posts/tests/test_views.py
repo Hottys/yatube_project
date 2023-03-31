@@ -131,6 +131,7 @@ class PostsPagesTests(TestCase):
             )
         )
         self.assertEqual(response.context['post'], self.post)
+        self.posts_check(response.context['post'])
 
     def test_create_post_show_correct_context(self):
         """Шаблон create_post и edit сформированы с правильным контекстом."""
@@ -209,6 +210,8 @@ class PostsPagesTests(TestCase):
             response_first.content,
             response_second.content
         )
+        cache.clear()
+        self.assertEqual(Post.objects.count(), settings.ZERO_POST)
 
 
 class PostsPaginatorViewsTests(TestCase):

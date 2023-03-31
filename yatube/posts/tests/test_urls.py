@@ -58,6 +58,7 @@ class PostsURLTests(TestCase):
             reverse(
                 'posts:post_create'): 'posts/post_create.html',
             reverse('posts:follow_index'): 'posts/follow.html',
+            '/page404/': 'core/404.html'
         }
         for reverse_name, template in templates_url_names.items():
             with self.subTest(reverse_name=reverse_name):
@@ -144,9 +145,3 @@ class PostsURLTests(TestCase):
                 'posts:post_detail',
                 kwargs={'post_id': self.post.id}
             ))
-
-    def test_error_page_template(self):
-        """Страница 404 выдает кастомный шаблон."""
-        response = self.authorized_client.get('/page404/')
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertTemplateUsed(response, 'core/404.html')
